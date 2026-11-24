@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIGEFER · Ferrecentro Nica</title>
+  <meta name="theme-color" content="#0f172a">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+
+<!-- ============ INICIO DE SESIÓN ============ -->
+<main id="login" class="login">
+  <section class="login-hero">
+    <div class="brand brand-lg">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6l22 12.7v25.6L32 57 10 44.3V18.7z" fill="#f59e0b"/><path d="M32 6l22 12.7L32 31.4 10 18.7z" fill="#fbbf24"/><circle cx="32" cy="31.5" r="8.5" fill="#0f172a"/><circle cx="32" cy="31.5" r="3.5" fill="#38bdf8"/></svg>
+      <div><b>SIGEFER</b><small>Ferrecentro Nica</small></div>
+    </div>
+    <h1>Sistema de Gestión <span>Ferretera</span></h1>
+    <p class="lead">Ventas, cuentas por cobrar, inventario y transferencias sobre una base de datos distribuida en seis unidades.</p>
+    <ul class="hero-points">
+      <li><i class="dot amber"></i> Cada usuario entra con su propio login de SQL Server</li>
+      <li><i class="dot steel"></i> Los permisos los aplica el motor: roles, <code>GRANT</code>, <code>DENY</code> y RLS</li>
+      <li><i class="dot green"></i> Conexión TDS cifrada con TLS hacia cada nodo</li>
+    </ul>
+    <div class="hero-nodes" aria-hidden="true">
+      <span>CEN</span><span>NOR</span><span>SUR</span><span>EST</span><span>ALM</span><span class="on">CORP</span>
+    </div>
+  </section>
+
+  <section class="login-panel">
+    <form id="login-form" class="login-card" autocomplete="off">
+      <h2>Iniciar sesión</h2>
+      <p class="muted">Elige tu unidad y entra con tu usuario de SQL Server.</p>
+
+      <label class="campo">
+        <span>Unidad / nodo</span>
+        <select id="l-nodo" required>
+          <option value="CEN">Central · CEN</option>
+          <option value="NOR">Norte · NOR</option>
+          <option value="SUR">Sur · SUR</option>
+          <option value="EST">Este · EST</option>
+          <option value="ALM">Almacén · ALM</option>
+          <option value="CORP">Corporativo · CORP</option>
+        </select>
+      </label>
+      <label class="campo">
+        <span>Usuario</span>
+        <input id="l-user" type="text" placeholder="p. ej. vend_nor" autocapitalize="off" spellcheck="false" required>
+      </label>
+      <label class="campo">
+        <span>Contraseña</span>
+        <div class="con-boton">
+          <input id="l-pass" type="password" placeholder="••••••••" required>
+          <button type="button" id="l-ver" class="ojo" aria-label="Mostrar contraseña">Ver</button>
+        </div>
+      </label>
+
+      <div id="l-error" class="alerta hidden" role="alert"></div>
+      <button id="l-enviar" class="btn btn-primario btn-bloque" type="submit">Ingresar</button>
+      <p class="pie-login">La contraseña no se guarda: se usa solo para abrir tu conexión y se descarta.</p>
+    </form>
+  </section>
+</main>
+
+<!-- ============ APLICACIÓN ============ -->
+<div id="shell" class="shell hidden">
+  <aside class="side" id="side">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6l22 12.7v25.6L32 57 10 44.3V18.7z" fill="#f59e0b"/><path d="M32 6l22 12.7L32 31.4 10 18.7z" fill="#fbbf24"/><circle cx="32" cy="31.5" r="8.5" fill="#0f172a"/><circle cx="32" cy="31.5" r="3.5" fill="#38bdf8"/></svg>
+      <div><b>SIGEFER</b><small>Ferrecentro Nica</small></div>
+    </div>
+    <nav id="nav" class="nav" aria-label="Módulos"></nav>
+    <div class="side-pie">
+      <div class="conexion">
+        <span class="pulso"></span>
+        <div>
+          <b id="p-servidor">—</b>
+          <small id="p-base">—</small>
+          <small id="p-version">—</small>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <button id="menu-btn" class="icono-btn menu-btn" aria-label="Menú"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div class="top-titulo">
+        <h1 id="t-titulo">Inicio</h1>
+        <small id="t-sub"></small>
+      </div>
+      <div class="top-der">
+        <span class="chip-nodo" id="t-nodo"></span>
+        <div class="usuario">
+          <div class="avatar" id="u-avatar">?</div>
+          <div class="usuario-datos"><b id="u-nombre">—</b><small id="u-rol">—</small></div>
+        </div>
+        <button id="salir" class="btn btn-fantasma" title="Cerrar sesión">
+          <svg viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M16 8l4 4-4 4M20 12H9"/></svg>
+          <span>Salir</span>
+        </button>
+      </div>
+    </header>
+    <section id="vista" class="vista" tabindex="-1"></section>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<script src="/app.js"></script>
+</body>
+</html>

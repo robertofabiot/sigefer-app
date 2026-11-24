@@ -1,0 +1,18 @@
+[Unit]
+Description=SIGEFER - Backend de la aplicación (fcn-app)
+After=fcn-cen.service fcn-nor.service fcn-sur.service fcn-est.service fcn-corp.service
+
+[Container]
+Image=localhost/sigefer:latest
+ContainerName=fcn-app
+HostName=fcn-app
+Network=fcn-red
+Environment=SIGEFER_NODOS=CEN=fcn-cen:1433/BD_FCN_Central;ALM=fcn-cen:1433/BD_FCN_Almacen;NOR=fcn-nor:1433/BD_FCN_Norte;SUR=fcn-sur:1433/BD_FCN_Sur;EST=fcn-est:1433/BD_FCN_Este;CORP=fcn-corp:1433/BD_FCN_Corporativa
+PublishPort=8080:8080
+PodmanArgs=--memory=256m
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
