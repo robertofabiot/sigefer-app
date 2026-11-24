@@ -22,6 +22,12 @@ const ICONOS = {
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
   dinero: '<circle cx="12" cy="12" r="9"/><path d="M14.5 9a2.5 2 0 0 0-2.5-1.5c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2A2.5 2 0 0 1 9.5 15M12 6v1.5M12 16.5V18"/>',
   alerta: '<path d="M12 4l10 17H2zM12 10v5M12 18h.01"/>',
+  map: '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"/>',
+  server: '<rect x="4" y="3" width="16" height="8" rx="2"/><rect x="4" y="13" width="16" height="8" rx="2"/><path d="M8 7h.01M8 17h.01"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>',
+  building: '<path d="M4 21V5l8-3 8 3v16M4 21h16M9 21v-5h6v5M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01"/>',
+  dock: '<path d="M3 20h18M5 20V9l7-5 7 5v11M9 20v-6h6v6M9 17h6"/>',
+  back: '<path d="M15 6l-6 6 6 6"/>',
 };
 const ico = (n, cls = '') => `<svg viewBox="0 0 24 24" class="${cls}">${ICONOS[n] || ''}</svg>`;
 
@@ -177,6 +183,7 @@ function selectorProducto(cont, productos, { alElegir, detalle }) {
 /* ---------- estado y navegación ---------- */
 let perfil = null;
 const NAV = [
+  { id: 'mapa', t: 'Mapa de la empresa', i: 'map' },
   { id: 'inicio', t: 'Inicio', i: 'home' },
   { id: 'ventas', t: 'Ventas y facturación', i: 'receipt' },
   { id: 'cxc', t: 'Cuentas por cobrar', i: 'wallet' },
@@ -187,6 +194,7 @@ const NAV = [
   { id: 'auditoria', t: 'Auditoría', i: 'shield' },
 ];
 const SUBTITULOS = {
+  mapa: 'Dónde vive cada dato y quién puede tocarlo',
   inicio: 'Resumen de tu unidad', ventas: 'Facturas de contado y de crédito', cxc: 'Saldos, vencimientos y abonos',
   inventario: 'Existencias y mínimos', transferencias: 'Despachos del almacén y recepciones en sucursal',
   reportes: 'Vistas de consolidación del corporativo', catalogo: 'Productos, unidades y listas de precios',
@@ -216,16 +224,16 @@ function entrar(p) {
   $('#p-servidor').textContent = p.servidor;
   $('#p-base').textContent = p.base;
   $('#p-version').textContent = 'SQL Server ' + p.version;
-  const items = NAV.filter(n => p.modulos.includes(n.id));
+  const items = NAV.filter(n => n.id === 'mapa' || p.modulos.includes(n.id));
   $('#nav').innerHTML = items.map(n => `<a href="#/${n.id}" data-id="${n.id}">${ico(n.i)}<span>${esc(n.id === 'transferencias' ? (p.tipo === 'ALMACEN' ? 'Despachos' : 'Recepciones') : n.id === 'inventario' && p.tipo === 'ALMACEN' ? 'Existencias del almacén' : n.t)}</span></a>`).join('');
-  if (!location.hash || location.hash === '#/') location.hash = '#/inicio';
+  if (!location.hash || location.hash === '#/') location.hash = '#/mapa';
   ruta();
 }
 
 async function ruta() {
   if (!perfil) return;
-  const id = (location.hash.replace('#/', '') || 'inicio').split('/')[0];
-  const v = VISTAS[id] || VISTAS.inicio;
+  const id = (location.hash.replace('#/', '') || 'mapa').split('/')[0];
+  const v = VISTAS[id] || VISTAS.mapa;
   const nav = NAV.find(n => n.id === id) || NAV[0];
   for (const a of document.querySelectorAll('#nav a')) a.classList.toggle('activo', a.dataset.id === id);
   $('#t-titulo').textContent = id === 'transferencias' ? (perfil.tipo === 'ALMACEN' ? 'Despachos a sucursales' : 'Recepción de transferencias') : nav.t;
@@ -273,6 +281,153 @@ VISTAS.inicio = async cont => {
       </div></div>
     </div>`;
 };
+
+/* --- Mapa de la empresa y plano de cada unidad --- */
+const UNIDADES = {
+  CORP: { n: 'Dirección Corporativa', c: 'Managua', host: 'fcn-corp', p: 1437, base: 'BD_FCN_Corporativa', tipo: 'CORPORATIVO', ico: 'building', x: 15, y: 50 },
+  ALM: { n: 'Almacén Central', c: 'Managua · Carretera Norte', host: 'fcn-cen', p: 1433, base: 'BD_FCN_Almacen', tipo: 'ALMACEN', ico: 'truck', x: 42, y: 38 },
+  CEN: { n: 'Sucursal Central', c: 'Managua', host: 'fcn-cen', p: 1433, base: 'BD_FCN_Central', tipo: 'SUCURSAL', ico: 'home', x: 34, y: 70 },
+  NOR: { n: 'Sucursal Norte', c: 'Estelí · ~150 km', host: 'fcn-nor', p: 1434, base: 'BD_FCN_Norte', tipo: 'SUCURSAL', ico: 'home', x: 30, y: 12 },
+  SUR: { n: 'Sucursal Sur', c: 'Rivas · ~110 km', host: 'fcn-sur', p: 1435, base: 'BD_FCN_Sur', tipo: 'SUCURSAL', ico: 'home', x: 62, y: 88 },
+  EST: { n: 'Sucursal Este', c: 'Juigalpa · ~140 km', host: 'fcn-est', p: 1436, base: 'BD_FCN_Este', tipo: 'SUCURSAL', ico: 'home', x: 79, y: 46 },
+};
+const CLASE_DATO = {
+  local: ['Local', 'Nace y vive en este nodo'],
+  copia: ['Copia', 'Copia de solo lectura del catálogo maestro'],
+  central: ['Maestro', 'Fuente única: solo se modifica en el corporativo'],
+  consol: ['Consolidado', 'Llega de los nodos por los Jobs de consolidación'],
+};
+const SERVIDOR = u => ({
+  t: 'Cuarto de servidor', i: 'server', mod: null, roles: ['DBA del nodo'],
+  d: `Instancia <code>${esc(u.host)}</code>, puerto ${u.p}, base <code>${esc(u.base)}</code>. ${u.tipo === 'CORPORATIVO'
+    ? 'Aquí corren los Jobs que reciben lo que envían los nodos.'
+    : 'Sus Jobs envían al corporativo cada 15 minutos; <code>ControlEnvio</code> evita mandar dos veces lo mismo.'} También tiene su propio respaldo.${u.host === 'fcn-cen' ? ' Central y Almacén comparten esta instancia, pero cada una tiene su base.' : ''}`,
+  tablas: u.tipo === 'CORPORATIVO' ? [['ControlConsolidacion', 'local']] : [['ControlEnvio', 'local']],
+});
+const PLANOS = {
+  SUCURSAL: {
+    areas: '"anden bodega bodega gerencia" "anden bodega bodega servidor" "sala sala caja credito" "sala sala caja credito"',
+    entrada: 'Entrada de clientes',
+    salas: {
+      anden: { t: 'Recepción de mercadería', i: 'dock', mod: 'transferencias', roles: ['rol_gerente_sucursal'], d: 'Aquí llega el camión del almacén. El gerente confirma lo que de verdad llegó y la existencia sube <b>solo en esta sucursal</b>. Las transferencias en tránsito se leen del corporativo por <code>LS_CORP</code>.', tablas: [['RecepcionTransferencia', 'local'], ['Transferencias en tránsito', 'consol']] },
+      bodega: { t: 'Bodega', i: 'boxes', mod: 'inventario', roles: ['rol_vendedor', 'rol_gerente_sucursal'], d: 'El stock propio de la sucursal. Una venta aquí descuenta solo de esta base: las demás sucursales tienen su propia <code>InventarioSucursal</code> en otra instancia, así que no se enteran ni se afectan.', tablas: [['InventarioSucursal', 'local'], ['MovimientoInventario', 'local'], ['Producto', 'copia']] },
+      gerencia: { t: 'Gerencia', i: 'shield', mod: 'auditoria', roles: ['rol_gerente_sucursal', 'rol_auditor'], d: 'Anula ventas, confirma recepciones y revisa la bitácora que llenan los triggers del nodo.', tablas: [['BitacoraAuditoria', 'local'], ['Devolucion', 'local']] },
+      sala: { t: 'Sala de ventas', i: 'users', mod: 'ventas', roles: ['rol_vendedor'], d: 'El vendedor arma la factura con el catálogo y la lista de precios del cliente, que son copias de solo lectura. La venta queda registrada en la base de esta sucursal, que es donde se origina.', tablas: [['Venta', 'local'], ['DetalleVenta', 'local'], ['Pedido', 'local'], ['Cliente', 'copia'], ['ListaPrecio', 'copia']] },
+      caja: { t: 'Caja', i: 'dinero', mod: 'ventas', roles: ['rol_cajero'], d: 'El cajero cobra las ventas de contado que dejó pendientes el vendedor.', tablas: [['Venta', 'local']] },
+      credito: { t: 'Crédito y cobranza', i: 'wallet', mod: 'cxc', roles: ['rol_cxc'], d: 'Cuentas por cobrar de los clientes mayoristas de la sucursal y sus abonos.', tablas: [['CuentaPorCobrar', 'local'], ['Pago', 'local']] },
+    },
+  },
+  ALMACEN: {
+    areas: '"proveedores estantes estantes oficina" "proveedores estantes estantes servidor" "despacho despacho despacho servidor"',
+    entrada: 'Portón de camiones',
+    salas: {
+      proveedores: { t: 'Andén de proveedores', i: 'dock', mod: null, roles: ['rol_almacen'], d: 'Los proveedores entregan solo aquí, nunca en las sucursales. Se registra la recepción y las diferencias. (Este paso se demuestra desde SSMS; la app no tiene pantalla para él.)', tablas: [['RecepcionProveedor', 'local'], ['DetalleRecepcion', 'local'], ['Proveedor', 'copia']] },
+      estantes: { t: 'Estantería central', i: 'boxes', mod: 'inventario', roles: ['rol_almacen'], d: 'Existencias del almacén: un inventario distinto al de cualquier sucursal.', tablas: [['ExistenciaAlmacen', 'local'], ['MovimientoAlmacen', 'local'], ['Producto', 'copia']] },
+      oficina: { t: 'Oficina del encargado', i: 'tag', mod: 'catalogo', roles: ['rol_almacen'], d: 'Consulta el catálogo para saber qué recibe y de quién.', tablas: [['Producto', 'copia'], ['UnidadMedida', 'copia']] },
+      despacho: { t: 'Zona de despacho', i: 'truck', mod: 'transferencias', roles: ['rol_almacen'], d: 'Se arma la transferencia hacia una sucursal: baja la existencia del almacén y queda <b>en tránsito</b> hasta que la sucursal confirma la recepción.', tablas: [['Transferencia', 'local'], ['DetalleTransferencia', 'local']] },
+    },
+  },
+  CORPORATIVO: {
+    areas: '"direccion direccion catalogos" "consolidacion auditoria servidor"',
+    entrada: 'Recepción',
+    salas: {
+      direccion: { t: 'Sala de dirección', i: 'chart', mod: 'reportes', roles: ['rol_gerente_general', 'rol_gerente_sucursal'], d: 'Ve las ventas, existencias y saldos de todas las unidades juntas, con el código de sucursal en cada fila.', tablas: [['Vistas de reportes', 'consol']] },
+      catalogos: { t: 'Catálogos maestros', i: 'tag', mod: 'catalogo', roles: ['todos (lectura)'], d: 'La única fuente de productos, clientes, proveedores y precios. Se modifican solo aquí; los nodos tienen copias de solo lectura para poder vender aunque se caiga la conexión.', tablas: [['Producto', 'central'], ['Cliente', 'central'], ['Proveedor', 'central'], ['ListaPrecio', 'central'], ['Sucursal', 'central']] },
+      consolidacion: { t: 'Consolidación', i: 'inbox', mod: 'reportes', roles: ['Jobs del Agente SQL'], d: 'Recibe cada 15 minutos lo que envían las sucursales y el almacén. <code>ControlConsolidacion</code> evita duplicados si un envío se repite.', tablas: [['Ventas de todos', 'consol'], ['CxC y pagos', 'consol'], ['Movimientos', 'consol'], ['Transferencias', 'consol']] },
+      auditoria: { t: 'Auditoría', i: 'shield', mod: 'auditoria', roles: ['rol_auditor'], d: 'Bitácora de operaciones críticas y cambios de privilegios de todos los nodos.', tablas: [['BitacoraAuditoria', 'consol']] },
+    },
+  },
+};
+const chipDato = ([t, c]) => `<span class="dato d-${c}" title="${esc(CLASE_DATO[c][1])}">${esc(t)}</span>`;
+
+VISTAS.mapa = async cont => {
+  const cod = (location.hash.split('/')[2] || '').toUpperCase();
+  if (UNIDADES[cod]) return planoUnidad(cont, cod);
+  const linea = (a, b, cls) => `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="${cls}" vector-effect="non-scaling-stroke"/>`;
+  const U = UNIDADES;
+  cont.innerHTML = `
+    <div class="panel"><div class="panel-cab"><h3>Ferrecentro Nica · 6 unidades, 5 instancias de SQL Server</h3><span class="grow"></span>
+      <span class="ley"><i class="l-desp"></i>Despacho de mercadería</span><span class="ley"><i class="l-cons"></i>Consolidación (Job cada 15 min)</span></div>
+      <div class="mapa">
+        <div class="zona-mga"><span>Managua</span></div>
+        <svg class="mapa-lineas" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          ${['CEN', 'NOR', 'SUR', 'EST'].map(k => linea(U.ALM, U[k], 'desp')).join('')}
+          ${['ALM', 'CEN', 'NOR', 'SUR', 'EST'].map(k => linea(U[k], U.CORP, 'cons')).join('')}
+        </svg>
+        ${Object.entries(U).map(([k, u]) => `
+          <a class="unidad t-${u.tipo.toLowerCase()} ${perfil.nodo === k ? 'aqui' : ''}" href="#/mapa/${k}" style="left:${u.x}%;top:${u.y}%">
+            ${perfil.nodo === k ? '<em>Tu sesión</em>' : ''}
+            <span class="u-ico">${ico(u.ico)}</span>
+            <span class="u-txt"><b>${esc(u.n)}</b><small>${esc(u.c)}</small><code>${esc(u.host)}:${u.p}</code></span>
+          </a>`).join('')}
+      </div>
+      <div class="mapa-pie">Haz clic en una unidad para entrar a su plano.</div>
+    </div>
+    <div class="panel"><div class="panel-cab"><h3>Qué datos están centralizados y cuáles no</h3></div>
+      <div class="reparto">
+        <div><span class="dato d-central">Centralizado</span><b>Catálogos maestros</b><p>Productos, categorías, unidades, proveedores, clientes, listas de precios y sucursales. Una sola fuente en <code>BD_FCN_Corporativa</code>; cada nodo guarda una copia de solo lectura para seguir vendiendo si se cae la conexión.</p></div>
+        <div><span class="dato d-local">Local</span><b>Operación de cada unidad</b><p>Ventas, pedidos, inventario, recepciones, devoluciones, CxC y pagos se registran en la base de la sucursal que los origina. Recepción de proveedores, existencias centrales y despachos, en <code>BD_FCN_Almacen</code>.</p></div>
+        <div><span class="dato d-consol">Consolidado</span><b>Visión de la dirección</b><p>Los Jobs copian cada 15 minutos la operación local al corporativo con su <code>CodigoSucursal</code>. Ahí solo se lee para reportes y auditoría; nunca se vende desde el corporativo.</p></div>
+      </div>
+    </div>`;
+};
+
+function planoUnidad(cont, cod) {
+  const u = UNIDADES[cod], P = PLANOS[u.tipo];
+  const salas = { ...P.salas, servidor: SERVIDOR(u) };
+  const propia = perfil.nodo === cod;
+  const estado = s => !s.mod ? 'info' : !propia ? 'ajena' : perfil.modulos.includes(s.mod) ? 'mia' : 'bloq';
+  cont.innerHTML = `
+    <div class="plano-cab">
+      <a class="btn btn-fantasma btn-sm" href="#/mapa">${ico('back')} Mapa de la empresa</a>
+      <h2>${esc(u.n)} <small>${esc(u.c)}</small></h2>
+      <span class="grow"></span>
+      <code>${esc(u.host)}:${u.p}</code><code>${esc(u.base)}</code>
+      ${propia ? '<span class="badge b-green">Tu sesión está aquí</span>' : '<span class="badge b-gray">Otra instancia</span>'}
+    </div>
+    ${propia ? '' : `<div class="alerta info">Tu sesión está abierta en <b>${esc(perfil.nodo_nombre)}</b>. ${esc(u.n)} es otra base${u.host === UNIDADES[perfil.nodo]?.host ? ' (en la misma instancia)' : ' en otra instancia de SQL Server'}: lo que hagas en tu unidad no toca sus datos, y para operar aquí hay que entrar con un login de este nodo.</div>`}
+    <div class="plano-wrap">
+      <div>
+        <div class="plano p-${u.tipo.toLowerCase()}" style='grid-template-areas:${P.areas}'>
+          ${Object.entries(salas).map(([k, s]) => `
+            <button class="sala s-${estado(s)}" data-k="${k}" style="grid-area:${k}">
+              <span class="sala-cab"><span class="sala-ico">${ico(s.i)}</span><b>${esc(s.t)}</b>${estado(s) === 'bloq' || estado(s) === 'ajena' ? ico('lock', 'candado') : ''}</span>
+              <span class="sala-datos">${s.tablas.slice(0, 3).map(chipDato).join('')}${s.tablas.length > 3 ? `<span class="dato">+${s.tablas.length - 3}</span>` : ''}</span>
+            </button>`).join('')}
+        </div>
+        <div class="entrada">${esc(P.entrada)}</div>
+        <div class="leyenda">${Object.entries(CLASE_DATO).map(([c, [t, d]]) => `<span><span class="dato d-${c}">${t}</span>${esc(d)}</span>`).join('')}</div>
+      </div>
+      <aside class="sala-detalle" id="detalle"><div class="vacio">${ico('map')}<b>Elige un área</b>Haz clic en un cuarto del plano para ver qué datos viven ahí y quién puede usarlos.</div></aside>
+    </div>`;
+
+  const det = $('#detalle', cont);
+  const mostrar = k => {
+    const s = salas[k], e = estado(s);
+    for (const b of cont.querySelectorAll('.sala')) b.classList.toggle('sel', b.dataset.k === k);
+    const nombreMod = s.mod && (NAV.find(n => n.id === s.mod) || {}).t;
+    const accion = {
+      mia: `<a class="btn btn-primario btn-bloque" href="#/${s.mod}">Entrar a ${esc(nombreMod)}</a>`,
+      bloq: `<div class="alerta">Tu login (<code>${esc(perfil.usuario)}</code>) no tiene un rol para esta área. La app la oculta, pero quien decide es SQL Server.</div>
+        <a class="btn btn-peligro btn-bloque" href="#/${s.mod}">${ico('lock')} Intentar entrar de todas formas</a>`,
+      ajena: `<div class="alerta info">Esta área es de ${esc(u.n)}. Desde tu sesión en ${esc(perfil.nodo_nombre)} no se puede tocar.</div>
+        <button class="btn btn-bloque" id="cambiar">Cerrar sesión y entrar a ${esc(u.n)}</button>`,
+      info: '',
+    }[e];
+    det.innerHTML = `
+      <div class="det-cab"><span class="sala-ico">${ico(s.i)}</span><div><h3>${esc(s.t)}</h3><small>${esc(u.n)}</small></div></div>
+      <p>${s.d}</p>
+      <h4>Quién trabaja aquí</h4><div class="det-roles">${s.roles.map(r => `<code class="${perfil.roles.includes(r) ? 'tengo' : ''}">${esc(r)}</code>`).join('')}</div>
+      <h4>Datos de esta área</h4>
+      <ul class="det-datos">${s.tablas.map(([t, c]) => `<li><span class="mono">${esc(t)}</span><span class="dato d-${c}">${CLASE_DATO[c][0]}</span></li>`).join('')}</ul>
+      ${accion}`;
+    const b = $('#cambiar', det);
+    if (b) b.onclick = async () => { await api('/logout', { method: 'POST', body: {} }).catch(() => {}); location.hash = ''; mostrarLogin(); $('#l-nodo').value = cod; $('#l-user').focus(); };
+  };
+  $('.plano', cont).addEventListener('click', e => { const b = e.target.closest('.sala'); if (b) mostrar(b.dataset.k); });
+  const inicial = Object.keys(salas).find(k => estado(salas[k]) === 'mia');
+  if (inicial) mostrar(inicial);
+}
 
 /* --- Ventas --- */
 VISTAS.ventas = async cont => {
@@ -576,7 +731,7 @@ $('#login-form').addEventListener('submit', async e => {
   b.disabled = true; b.textContent = 'Conectando…'; err.classList.add('hidden');
   try {
     const p = await api('/login', { method: 'POST', body: { nodo: $('#l-nodo').value, usuario: $('#l-user').value, clave: $('#l-pass').value } });
-    $('#l-pass').value = ''; location.hash = '#/inicio'; entrar(p);
+    $('#l-pass').value = ''; location.hash = '#/mapa'; entrar(p);
   } catch (x) { err.textContent = x.message; err.classList.remove('hidden'); }
   finally { b.disabled = false; b.textContent = 'Ingresar'; }
 });

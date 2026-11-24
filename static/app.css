@@ -113,7 +113,7 @@ input[type=number]{font-variant-numeric:tabular-nums}
 .usuario-datos b{display:block;font-size:13px;line-height:1.1}
 .usuario-datos small{display:block;color:var(--tx2);font-size:11px}
 .menu-btn{display:none}
-.vista{flex:1;overflow:auto;padding:26px 28px 40px;outline:none;animation:entra .25s ease}
+.vista{container:vista/inline-size;flex:1;overflow:auto;padding:26px 28px 40px;outline:none;animation:entra .25s ease}
 @keyframes entra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media(max-width:980px){
   .shell{grid-template-columns:1fr}
@@ -241,3 +241,92 @@ tbody tr.clic{cursor:pointer}
 .cargando{display:grid;place-items:center;padding:60px;color:var(--tx2);gap:12px}
 .spin{width:26px;height:26px;border-radius:50%;border:3px solid var(--linea2);border-top-color:var(--ambar);animation:giro .8s linear infinite}
 @keyframes giro{to{transform:rotate(360deg)}}
+
+/* ---------- mapa de la empresa ---------- */
+.ley{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2)}
+.ley i{width:26px;height:0;border-top:2px solid var(--ambar)}
+.ley i.l-cons{border-top:2px dashed var(--acero)}
+.mapa{position:relative;aspect-ratio:16/9;min-height:420px;margin:14px;border-radius:12px;overflow:hidden;
+  background:radial-gradient(600px 300px at 40% 45%,rgba(245,158,11,.06),transparent 70%),
+  repeating-linear-gradient(0deg,rgba(148,163,184,.05) 0 1px,transparent 1px 40px),repeating-linear-gradient(90deg,rgba(148,163,184,.05) 0 1px,transparent 1px 40px),#0c1426;border:1px solid var(--linea)}
+.zona-mga{position:absolute;left:3%;top:24%;width:51%;height:62%;border:1px dashed rgba(148,163,184,.28);border-radius:28px;background:rgba(148,163,184,.035)}
+.zona-mga span{position:absolute;left:14px;bottom:8px;font:700 10.5px var(--fuente);letter-spacing:.18em;text-transform:uppercase;color:var(--tx3)}
+.mapa-lineas{position:absolute;inset:0;width:100%;height:100%}
+.mapa-lineas line{fill:none;stroke-width:2}
+.mapa-lineas .desp{stroke:var(--ambar);stroke-opacity:.7;stroke-dasharray:10 8;animation:flujo 1.6s linear infinite}
+.mapa-lineas .cons{stroke:var(--acero);stroke-opacity:.45;stroke-dasharray:3 6;animation:flujo 2.4s linear infinite}
+@keyframes flujo{to{stroke-dashoffset:-36}}
+.unidad{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;min-width:190px;border-radius:12px;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--linea2);color:var(--tx);text-decoration:none;box-shadow:var(--sombra);transition:.18s;z-index:2}
+.unidad:hover{border-color:var(--ambar);transform:translate(-50%,-50%) translateY(-3px);box-shadow:0 12px 30px rgba(2,6,23,.6)}
+.unidad .u-ico{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:rgba(56,189,248,.12);color:var(--acero2);flex:none}
+.unidad.t-almacen .u-ico{background:rgba(245,158,11,.14);color:var(--ambar2)}
+.unidad.t-corporativo .u-ico{background:rgba(167,139,250,.14);color:#c4b5fd}
+.unidad .u-ico svg{width:22px;height:22px}
+.u-txt{display:grid;line-height:1.25}
+.u-txt b{font-size:13.5px}.u-txt small{color:var(--tx2);font-size:11.5px}
+.u-txt code{background:none;padding:0;color:var(--tx3);font-size:10.5px;margin-top:2px}
+.unidad.aqui{border-color:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.18),var(--sombra)}
+.unidad em{position:absolute;top:-10px;right:10px;font:700 9.5px var(--fuente);font-style:normal;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--ok);color:#052e16}
+.mapa-pie{padding:0 18px 14px;color:var(--tx3);font-size:12px}
+.reparto{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--linea)}
+.reparto>div{background:var(--panel);padding:16px 18px}
+.reparto b{display:block;margin:10px 0 4px}
+.reparto p{margin:0;color:var(--tx2);font-size:13px}
+@container vista (max-width:640px){
+  .mapa{aspect-ratio:auto;min-height:0;display:grid;gap:10px;padding:12px}
+  .zona-mga,.mapa-lineas{display:none}
+  .unidad{position:relative;left:auto!important;top:auto!important;transform:none;min-width:0}
+  .unidad:hover{transform:translateY(-2px)}
+  .reparto{grid-template-columns:1fr}
+}
+
+/* ---------- chips de clase de dato ---------- */
+.dato{display:inline-flex;align-items:center;font:600 10.5px var(--mono);padding:2px 7px;border-radius:6px;border:1px solid var(--linea2);color:var(--tx2);background:rgba(148,163,184,.08);white-space:nowrap}
+.d-local{color:#86efac;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.1)}
+.d-copia{color:#cbd5e1;border-color:rgba(148,163,184,.35);border-style:dashed}
+.d-central{color:#c4b5fd;border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.1)}
+.d-consol{color:var(--acero2);border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.1)}
+
+/* ---------- plano de una unidad ---------- */
+.plano-cab{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.plano-cab h2{font-size:20px}
+.plano-cab h2 small{font-size:13px;color:var(--tx2);font-weight:500;margin-left:6px}
+.plano-cab .grow{flex:1}
+.plano-wrap{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+.plano{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(118px,auto);gap:0;padding:10px;border:3px solid #3b4e70;border-bottom:0;border-radius:14px 14px 0 0;
+  background:repeating-linear-gradient(45deg,rgba(148,163,184,.035) 0 10px,transparent 10px 20px),#0c1426}
+.plano.p-corporativo{grid-template-columns:repeat(3,1fr)}
+.sala{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:10px;text-align:left;margin:5px;padding:12px;border-radius:8px;cursor:pointer;
+  font:inherit;color:var(--tx);border:2px solid var(--linea2);background:linear-gradient(180deg,rgba(24,36,61,.95),rgba(19,29,51,.95));transition:.15s}
+.sala:hover{border-color:#4a6290;transform:translateY(-2px)}
+.sala.sel{border-color:var(--ambar);box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+.sala-cab{display:flex;align-items:center;gap:10px}
+.sala-cab b{font-size:13.5px;flex:1}
+.sala-ico{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:rgba(245,158,11,.14);color:var(--ambar2);flex:none}
+.sala .candado{color:#f87171;width:16px;height:16px}
+.sala-datos{display:flex;flex-wrap:wrap;gap:5px}
+.sala.s-mia{border-color:rgba(34,197,94,.45)}
+.sala.s-mia .sala-ico{background:rgba(34,197,94,.14);color:#86efac}
+.sala.s-bloq,.sala.s-ajena{background:repeating-linear-gradient(135deg,rgba(239,68,68,.05) 0 8px,transparent 8px 16px),rgba(19,29,51,.95)}
+.sala.s-bloq .sala-ico,.sala.s-ajena .sala-ico{background:rgba(100,116,139,.15);color:var(--tx3)}
+.sala.s-ajena{opacity:.85}
+.sala.s-info .sala-ico{background:rgba(56,189,248,.12);color:var(--acero2)}
+.entrada{text-align:center;font:700 10.5px var(--fuente);letter-spacing:.18em;text-transform:uppercase;color:var(--tx3);padding:8px;border:3px solid #3b4e70;border-top:2px dashed #3b4e70;border-radius:0 0 14px 14px;background:#0a111f}
+.leyenda{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:12px;color:var(--tx2)}
+.leyenda>span{display:inline-flex;align-items:center;gap:7px}
+.sala-detalle{position:sticky;top:0;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--linea);border-radius:var(--radio);box-shadow:var(--sombra);padding:18px}
+.sala-detalle .vacio{padding:30px 10px}
+.det-cab{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.det-cab h3{font-size:16px}.det-cab small{color:var(--tx2)}
+.sala-detalle p{color:#cbd5e1;font-size:13px;margin:0 0 14px}
+.sala-detalle h4{margin:0 0 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.det-roles{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.det-roles code.tengo{background:rgba(34,197,94,.14);color:#86efac}
+.det-datos{list-style:none;margin:0 0 16px;padding:0;border:1px solid var(--linea);border-radius:10px}
+.det-datos li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--linea)}
+.det-datos li:last-child{border-bottom:0}
+.sala-detalle .alerta{margin-bottom:10px}
+.sala-detalle a.btn{text-decoration:none}
+@media(max-width:1100px){.plano-wrap{grid-template-columns:1fr}.sala-detalle{position:static}}
+@media(max-width:640px){.plano{grid-template-areas:none!important;grid-template-columns:1fr!important}.sala{grid-area:auto!important}}
